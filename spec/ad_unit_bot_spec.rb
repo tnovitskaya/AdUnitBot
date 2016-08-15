@@ -11,19 +11,34 @@ require 'spec_helper'
 # end
 
 describe AdUnitBot do
-  let(:email_user) { 'tanuwkanov@yandex.ru' }
+
+  # subject(:ad_unit) do
+  #   AdUnitBot.new('un', 'pw')
+  # end
+  after { Capybara.reset_sessions! }
+
+  let(:email) { 'tanuwkanov@yandex.ru' }
   let(:password) { '123456q' }
+  let(:platform_id) { '300029472' }
 
   it "logs in with valid credentials" do
-    expect { AdUnitBot.headlessly_login }.to_not raise_error
+    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q')
+    expect { unit.login }.to_not raise_error
+    # expect { ad_unit.headlessly_login }.to_not raise_error
   end
 
   context "logs in with invalid credentials" do
-    let(:account_user) { "dizwarhomo" }
+    let(:email) { "dizwarhomo" }
     let(:password)     { "homohomo" }
 
     it "raises LoginFailed" do
-      expect { AdUnitBot.headlessly_login }.to raise_error "Invalid login or password"
+      unit = AdUnitBot.new('dizwarhomo@ert.ty', 'homohomo')
+      expect { unit.login }.to raise_error(RuntimeError)
     end
+  end
+
+  it "verifies a platform is valid" do
+    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q')
+    expect(unit.verifies_platform?(10165)).to be_truthy 
   end
 end
