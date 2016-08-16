@@ -1,36 +1,39 @@
 # AdUnitBot
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ad_unit_bot`. To experiment with that code, run `bin/console` for an interactive prompt.
+AdUnitBot позволяет создавать рекламные места на сайте http://target.my.com.
 
-TODO: Delete this and the text above, and describe your gem
+Он автоматически авторизуется на сайте, используя переданные email и password. Далее бот ищет платформу по переданному `platform_id` и создает новый ad unit. 
 
-## Installation
+Для каждого рекламного блока можно указать название блока, тип и дополнительные параметры.
 
-Add this line to your application's Gemfile:
+## Установка
 
-```ruby
-gem 'ad_unit_bot'
+После того, как Вы скачаете код репозитория выполните в директории проекта:
+
+```bash
+bundle install
 ```
 
-And then execute:
+А затем для запуска тестов:
 
-    $ bundle
+```bash
+rspec spec
+```
 
-Or install it yourself as:
+## Использование
 
-    $ gem install ad_unit_bot
+При создании экземлпяра класса ему нужно передать `email`, 'password', `platform_id`.
 
-## Usage
+Затем вызвать метод `create_ad_unit` с хэшом конфигурации рекламного блока, как показано в примере:
 
-TODO: Write usage instructions here
+```ruby
+require 'ad_unit_bot'
 
-## Development
+bot = AdUnitBot.new('test@example.com', 'password', '12345')
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ad_unit_bot.
-
+bot.create_ad_unit( { title:      'Your title',
+                      type:       'medium',
+                      show_limit: 5,
+                      period:     'в день',
+                      interval:   4 } )
+```

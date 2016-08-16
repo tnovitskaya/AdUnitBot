@@ -1,60 +1,53 @@
 require 'spec_helper'
 
-# describe AdUnitBot do
-#   it 'has a version number' do
-#     expect(AdUnitBot::VERSION).not_to be nil
-#   end
-
-#   it 'does something useful' do
-#     expect(false).to eq(true)
-#   end
-# end
+include AdUnitBotHelpers
 
 describe AdUnitBot do
 
-  # subject(:ad_unit) do
-  #   AdUnitBot.new('un', 'pw')
-  # end
+  subject(:unit) { AdUnitBot.new(email, password, platform_id) }
+
   after { Capybara.reset_sessions! }
 
-  let(:email) { 'tanuwkanov@yandex.ru' }
-  let(:password) { '123456q' }
-  let(:platform_id) { '300029472' }
+  let(:email) { 'iwanowa.te2017@yandex.ru' }
+  let(:password) { '123456t' }
+  let(:platform_id) { '10239' }
 
-  it "logs in with valid credentials" do
-    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q', 1)
+  let(:block_params) { { title: Faker::Crypto.md5,
+                         type: ['standard', 'medium', 'fullscreen',
+                                'floating', 'native'].sample,
+                         show_limit: Faker::Number.between(1, 31),
+                         period: ['в день', 'в неделю', 'в месяц',
+                                  'за всё время'].sample,
+                         interval: Faker::Number.between(1, 31) } }
+
+  it 'logs in with valid credentials' do
     expect { unit.login }.to_not raise_error
   end
 
-  context "logs in with invalid credentials" do
-    let(:email) { "dizwarhomo" }
-    let(:password)     { "homohomo" }
+  context 'when logs in with invalid credentials' do
+    let(:email)    { 'not_existing@email.com' }
+    let(:password) { 'invalid_password' }
 
-    it "raises LoginFailed" do
-      unit = AdUnitBot.new('dizwarhomo@ert.ty', 'homohomo', 2)
-      expect { unit.login }.to raise_error(RuntimeError)
+    it 'raises LoginFailed' do
+      expect { unit.login }.to raise_error('Invalid login or password')
     end
   end
 
-  it "verifies a platform is valid" do
-    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q', 2)
-    expect(unit.verifies_platform?('10165')).to be_truthy 
+  it 'verifies a platform is valid' do
+    expect(unit.platform_exists?).to be_truthy
   end
 
-  it "platform is not found" do
-    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q', 3)
-    expect { unit.choose_platform('fail') }.to raise_error("Platform id is not found.")
+  context 'when platform does not exists' do
+    let(:platform_id) { 'fail' }
+
+    it 'platform is not found' do
+      expect { unit.choose_platform }
+        .to raise_error('Platform id is not found.')
+    end
   end
 
-  it "creates ad unit" do
-    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q', 112)
-    unit.create_ad_unit('10165')
-    expect { unit.created_new_ad_unit('111') }.to_not raise_error
-  end
-
-  it "new ad unit did not create" do
-    unit = AdUnitBot.new('tanuwkanov@yandex.ru', '123456q', 112)
-    unit.create_ad_unit('10165')
-    expect { unit.created_new_ad_unit('113') }.to raise_error("New ad unit not found")
+  it 'creates new ad unit' do
+    unit.create_ad_unit(block_params)
+    expect { unit.created_new_ad_unit(block_params) }.to_not raise_error
   end
 end
